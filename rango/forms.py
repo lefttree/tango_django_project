@@ -1,5 +1,8 @@
 from django import forms
 from rango.models import Page, Category
+#user
+from rango.models import UserProfile
+from django.contrib.auth.models import User
 
 class CategoryForm(forms.ModelForm):
     name = forms.CharField(max_length=128, help_text="Please enter a category name")
@@ -19,6 +22,7 @@ class PageForm(forms.ModelForm):
         #hide some fields like ForeignKey
         fields= ('title', 'url', 'views')
 
+    #clean the url user entered
     def clean(self):
         cleaned_data = self.cleaned_data
         url = cleaned_data.get('url')
@@ -28,3 +32,16 @@ class PageForm(forms.ModelForm):
             cleaned_data['url'] = url
 
         return cleaned_data
+
+class UserForm(forms.ModelForm):
+    #hide user input with widget
+    password = forms.CharField(widget = forms.PasswordInput)
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'password')
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ('website', 'picture')

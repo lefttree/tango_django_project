@@ -3,6 +3,8 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response
 from rango.forms import CategoryForm, PageForm
 from rango.models import Category, Page
+#user
+from rango.forms import UserForm, UserProfileForm
 
 def index(request):
     #return HttpResponse("Rango says hello world! <a href='/rango/about'>About</a>")
@@ -97,4 +99,44 @@ def category(request, category_name_url):
    return render_to_response('rango/category.html', context_dict, context)
 
 
+def register(request):
+    context = RequestContext(request)
 
+    #to indicate registration process status
+    registered = False
+
+    if request.method == 'POST':
+        user_form = UserForm(data=request.POST)
+        profile_form = UserProfileForm(data=request.POST)
+
+        if user_form.is_valid() and profile_form.is_valid():
+            user = user_form.save()
+            #hash the password with set_password method
+            user.set_password(user.password)
+            user.save()
+
+            #now sort out the UserProfile instance
+            #Since we need to set the user attribute ourselves
+            #set commit = False
+            #This delays saving the model until we're ready
+            profile = profile_form.save(commit=False)
+            profile.user = user
+
+            if 'picture' in request.FILES:
+                profile.picture = request.FILES['picture']
+
+            #now we save the UserProfile model instance
+            profile.save()
+
+            registered = True
+        else:
+            print user_form.errors, profile_form.errors
+    else:
+        user_form = UserForm()
+        profile_form = UserProfileForm()
+
+    context_dict ={'user_form': user_form,
+                   'profile_form': profile_form,    
+                }
+
+    return render_to_response('rango/register.html', context_dict, context)
