@@ -8,6 +8,10 @@ from rango.forms import UserForm, UserProfileForm
 #login
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponseRedirect
+#decorator 
+from django.contrib.auth.decorators import login_required
+#logout
+from django.contrib.auth import logout
 
 def index(request):
     #return HttpResponse("Rango says hello world! <a href='/rango/about'>About</a>")
@@ -158,7 +162,7 @@ def user_login(request):
         if user:
             if user.is_active:
                 login(request, user)
-                return HttpResponseRedirect('/rango/', {'user': user})
+                return HttpResponseRedirect('/rango/')
             else:
                 return HttpResponse("Your account is disabled.")
         else:
@@ -166,3 +170,13 @@ def user_login(request):
             return HttpResponse("Invalid login details supplied.")
     else:
         return render_to_response('rango/login.html', {}, context)
+
+@login_required
+def restricted(request):
+    return HttpResponse("You're logged in.")
+
+@login_required
+def user_logout(request):
+    logout(request)
+
+    return HttpResponseRedirect('/rango/')
