@@ -12,24 +12,50 @@ from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 #logout
 from django.contrib.auth import logout
+#datetime
+from datetime import datetime
 
 def index(request):
     #return HttpResponse("Rango says hello world! <a href='/rango/about'>About</a>")
     context = RequestContext(request)
     #a dictionary that maps template variable names with python variables
     #query the database
-    category_list = Category.objects.order_by('-likes')[:5]
+    category_list = Category.objects.all()
     context_dict = {'categories': category_list}
 
     for category in category_list:
         category.url = category.name.replace(' ', '_')
+    
+    page_list = Page.objects.order_by('-views')[:5]
+    context_dict['pages'] = page_list
+    response = render_to_response('rango/index.html', context_dict, context)
+
+    #new code#
+    #store session on server side#
+    if request.session.get('last_visit'):
+        last_visit_time = request.session.get('last_visit')
+        last_visit_time = datetime.strptime(last_visit_time[:-7], "%Y-%m-%d %H:%M:%S")
+        visits = request.session.get('visits', 0)
+
+        if (datetime.now() - last_visit_time).days > 0:
+            request.session['visits'] = visits + 1
+            request.session['last_visit'] = str(datetime.now())
+    else:
+        request.session['last_visit'] = str(datetime.now())
+        request.session['visits'] = 1
 
     return render_to_response('rango/index.html', context_dict, context)
+
 
 def about(request):
     context = RequestContext(request)
 
+    if request.session.get('visits'):
+        count = request.session.get('visits')
+    else:
+        count = 0
     context_dict_about = {'aboutmessage': 'about what'}
+    context_dict_about['count'] = count
 
     #response_str = "This is the about page" + "<a href='/rango'>Rango</a>"
     return render_to_response('rango/about.html', context_dict_about, context)
@@ -107,6 +133,8 @@ def category(request, category_name_url):
 
 
 def register(request):
+    print ">>>> Test cookie worked!"
+    request.session.delete_test_cookie()
     context = RequestContext(request)
 
     #to indicate registration process status
