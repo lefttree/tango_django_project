@@ -1,27 +1,31 @@
-<!DOCTYPE html>
-<html>
-	<head>
-		<title>Rango</title>
-	</head>
+{% extends 'rango/base.html' %}
+{% load %}<!-- new line -->
 
-	<body>
+{% block title %}Register{% endblock %}
+
+{% block body_block %}
+<div class="hero-unit">
 		<h1>Register with Rango</h1>
-
+		<br />
+		
+		<div class="container">
 		<!-- registered variable to indicate form submit -->
 		{% if registered %}
 			<strong>Thank you for resitering!</strong>
 			<a href='/rango/'>Return to Home</a>
 		{% else %}
 			<strong>Register here!</strong>
-			<form id='user_form' method='POST' action='/rango/register/' enctype='multipart/form-data'>
+			<form id='user_form' class="form-signin span8" method='POST' action='/rango/register/' enctype='multipart/form-data'>
 				{% csrf_token %}
+				<h2 class="form-signin-heading">Sign up here</h2>
 				<!-- display each form. as_p method wraps each element in a (<p>) element -->
 				{{ user_form.as_p }}
 				{{ profile_form.as_p }}
-				<input type='submit' name='submit' value='Register'/>
+
+				<br />
+				<input class="btn btn-primary" type='submit' name='submit' value='Register'/>
 			</form>
 		{% endif %}
-	</body>
-</html>
-	</body>
-</html>
+		</div>
+</div>
+{% endblock %}

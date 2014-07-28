@@ -134,7 +134,7 @@ def category(request, category_name_url):
 
 def register(request):
     print ">>>> Test cookie worked!"
-    request.session.delete_test_cookie()
+    #request.session.delete_test_cookie()
     context = RequestContext(request)
 
     #to indicate registration process status
