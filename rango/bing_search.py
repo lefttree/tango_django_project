@@ -4,7 +4,7 @@ import urllib, urllib2
 def run_query(search_terms):
     #Specify the base
     root_url = 'https://api.datamarket.azure.com/Bing/Search/'
-    sourece = 'Web'
+    source = 'Web'
 
     #specify how many results wanna show per page
     results_per_page = 10
@@ -32,7 +32,7 @@ def run_query(search_terms):
 
     # Create a 'password manager' which handles authentication for us.
     password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
-    password_mgr.add_password(None, search_url, username, bing_api_keyb)
+    password_mgr.add_password(None, search_url, username, bing_api_key)
 
 
     # Create our results list which we'll populate.
