@@ -19,4 +19,26 @@
 	{% else %}
 		The specified category {{ category_name }} does not exist.
 	{% endif %}
+	<div class="container-fluid">
+		<form class="form-signin span8" id="user_form" method="POST" action="/rango/category/{{ category_name_url }}/">
+		{% csrf_token %}
+		<input type="text" size="50" class="input-long search-query" name="query" value="{{ category_name }}" id="query" />
+            	<button class="btn btn-success" type="submit" name="submit" value="Search" />Search</button>
+		</form>
+		{% if result_list %}
+		<div style="clear: both;">
+			<ol>
+			{% for result in result_list %}
+				<li>
+				<strong><a href="{{ result.link }}">{{ result.title }}</a></strong><br />
+				<em>{{ result.summary }}</em>
+				</li>
+			{% endfor %}
+			</ol>
+		</div>
+		{% else %}
+			<br/>
+			<p>No results found</p>
+		{% endif %}
+	</div>
 {% endblock %}
