@@ -16,6 +16,8 @@ from django.contrib.auth import logout
 from datetime import datetime
 #run query
 from rango.bing_search import run_query
+#
+from django.contrib.auth.models import User
 
 def index(request):
     #return HttpResponse("Rango says hello world! <a href='/rango/about'>About</a>")
@@ -258,3 +260,20 @@ def encode_url(name):
 def decode_url(url):
     name = url.replace('_', ' ')
     return name
+
+@login_required
+def profile(request):
+   context = RequestContext(request)
+   cat_list = get_category_list()
+   context_dict = {'cat_list': cat_list}
+   u = User.objects.get(username=request.user)
+
+   try:
+        up = UserProfile.objects.get(user=u)
+   except:
+        up = None
+
+   context_dict['user'] = u
+   context_dict['userprofile'] = up
+
+   return render_to_response('rango/profile.html', context_dict, context)
