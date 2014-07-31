@@ -22,11 +22,12 @@ def index(request):
     context = RequestContext(request)
     #a dictionary that maps template variable names with python variables
     #query the database
-    category_list = Category.objects.all()
-    context_dict = {'categories': category_list}
+    #category_list = Category.objects.all()
+    cat_list = get_category_list()
+    context_dict = {'cat_list': cat_list}
 
-    for category in category_list:
-        category.url = category.name.replace(' ', '_')
+    #for category in category_list:
+    #    category.url = category.name.replace(' ', '_')
     
     page_list = Page.objects.order_by('-views')[:5]
     context_dict['pages'] = page_list
@@ -51,6 +52,7 @@ def index(request):
 
 def about(request):
     context = RequestContext(request)
+    cat_list = get_category_list()
 
     if request.session.get('visits'):
         count = request.session.get('visits')
@@ -58,6 +60,7 @@ def about(request):
         count = 0
     context_dict_about = {'aboutmessage': 'about what'}
     context_dict_about['count'] = count
+    context_dict_about['cat_list'] = cat_list
 
     #response_str = "This is the about page" + "<a href='/rango'>Rango</a>"
     return render_to_response('rango/about.html', context_dict_about, context)
@@ -65,6 +68,7 @@ def about(request):
 def add_category(request):
     #Get the context from the request
     context = RequestContext(request)
+    cat_list = get_category_list()
 
     #A HTTP POST?
     if request.method == 'POST':
@@ -82,12 +86,13 @@ def add_category(request):
         #request was not a POST, display the form to enter details
         form = CategoryForm()
 
-    return render_to_response('rango/add_category.html', {'form': form}, context)
+    return render_to_response('rango/add_category.html', {'form': form, 'cat_list': cat_list}, context)
 
 def add_page(request, category_name_url):
     context = RequestContext(request)
     
     category_name = category_name_url.replace('_', ' ')
+    cat_list = get_category_list()
     if request.method == 'POST':
         form = PageForm(request.POST)
         if form.is_valid():
@@ -113,14 +118,18 @@ def add_page(request, category_name_url):
     context_dict = {'category_name_url': category_name_url,
                     'category_name': category_name,
                     'form': form,
+                    'cat_list': cat_list,
                    }
     return render_to_response('rango/add_page.html', context_dict, context)
 
 def category(request, category_name_url):
    context = RequestContext(request)
    category_name = category_name_url.replace('_', ' ')
+   cat_list = get_category_list()
 
-   context_dict = {'category_name': category_name}
+   context_dict = {'category_name': category_name,
+                   'cat_list': cat_list 
+                  }
    try:
         category = Category.objects.get(name=category_name)
         pages = Page.objects.filter(category=category)
@@ -172,8 +181,11 @@ def register(request):
         user_form = UserForm()
         profile_form = UserProfileForm()
 
+    cat_list = get_category_list()
+
     context_dict ={'user_form': user_form,
-                   'profile_form': profile_form,    
+                   'profile_form': profile_form,   
+                   'cat_list': cat_list,
                 }
 
     return render_to_response('rango/register.html', context_dict, context)
@@ -223,3 +235,20 @@ def search(request):
 
     context_dict={'result_list': result_list}
     return render_to_response('rango/search.html',context_dict, context )
+
+
+def get_category_list():
+   cat_list = Category.objects.all()
+
+   for cat in cat_list:
+        cat.url = encode_url(cat.name)
+   return cat_list
+
+def encode_url(name):
+    url = name.replace(' ', '_')
+    
+    return url
+
+def decode_url(url):
+    name = url.replace('_', ' ')
+    return name
