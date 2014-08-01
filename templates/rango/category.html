@@ -6,6 +6,12 @@
 {% block body_block %}
 	<div class="hero-unit">
 	<h1>{{ category_name }}</h1>
+	<p>
+	<b id="like_count">{{ category.likes }}</b> people like this category
+	{% if user.is_authenticated %}
+		<button id="likes" date-catid="{{category.id}}" class="btn btn-mini btn-primary" type="button">Like</button>
+	{% endif %}
+	</p>
 	{% if category %}
 		{% if pages %}
 		<ul>
