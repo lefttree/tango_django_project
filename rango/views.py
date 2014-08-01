@@ -18,6 +18,8 @@ from datetime import datetime
 from rango.bing_search import run_query
 #
 from django.contrib.auth.models import User
+#redirect
+from django.shortcuts import redirect
 
 def index(request):
     #return HttpResponse("Rango says hello world! <a href='/rango/about'>About</a>")
@@ -26,6 +28,7 @@ def index(request):
     #query the database
     #category_list = Category.objects.all()
     cat_list = get_category_list()
+    cat_list = cat_list.order_by('-views')[:5]
     context_dict = {'cat_list': cat_list}
 
     #for category in category_list:
@@ -135,6 +138,7 @@ def category(request, category_name_url):
    try:
         category = Category.objects.get(name=category_name)
         pages = Page.objects.filter(category=category)
+        pages = pages.order_by('-views')
 
         context_dict['pages'] = pages
         context_dict['category'] = category
@@ -277,3 +281,23 @@ def profile(request):
    context_dict['userprofile'] = up
 
    return render_to_response('rango/profile.html', context_dict, context)
+
+
+#track url click number
+def track_url(request):
+    context = RequestContext(request)
+
+    page_id = None
+    url = "/rango/"
+    if request.method == "GET":
+        if 'page_id' in request.GET:
+            page_id = request.GET['page_id']
+            try:
+                page = Page.objects.get(id=page_id)
+                page.views = page.views + 1
+                page.save()
+                url = page.url
+            except:
+                pass
+
+    return redirect(url)
