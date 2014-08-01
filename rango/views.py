@@ -28,7 +28,8 @@ def index(request):
     #query the database
     #category_list = Category.objects.all()
     cat_list = get_category_list()
-    cat_list = cat_list.order_by('-views')[:5]
+    
+    #cat_list = cat_list.order_by('-likes')[:5]
     context_dict = {'cat_list': cat_list}
 
     #for category in category_list:
