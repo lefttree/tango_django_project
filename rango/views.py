@@ -320,3 +320,34 @@ def like_category(request):
             category.save()
 
     return HttpResponse(likes)
+
+
+#get suggested categories
+def get_category_list(max_results=0, starts_with=''):
+    cat_list = []
+    if starts_with:
+        cat_list = Category.objects.filter(name__istartswith=starts_with)
+    else:
+        cat_list = Category.objects.all()
+
+    if max_results > 0:
+        if len(cat_list) > max_results:
+            cat_list = cat_list[:max_results]
+
+    for cat in cat_list:
+        cat.url = encode_url(cat.name)
+
+    return cat_list
+
+#new view returns the top 8 matching results as follows
+
+def suggest_category(request):
+    context = RequestContext(request)
+    cat_list = []
+    start_with = ''
+    if request.method == 'GET':
+        starts_with = request.GET['suggestion']
+
+    cat_list = get_category_list(8, starts_with)
+
+    return render_to_response('rango/category_list.html', {'cat_list': cat_list}, context)
